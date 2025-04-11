@@ -1,0 +1,13 @@
+﻿<Window x:Class="ClusteringPlot.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ClusteringPlot"
+        xmlns:series="clr-namespace:EasyPlot.Series;assembly=EasyPlot"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <series:TreePlot Margin="50" Background="Wheat" x:Name="aa"></series:TreePlot>
+    </Grid>
+</Window>
