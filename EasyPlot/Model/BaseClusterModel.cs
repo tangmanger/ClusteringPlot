@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EasyPlot.Model
 {
-    public  class BaseClusterModel
+    public class BaseClusterModel
     {
         /// <summary>
         /// 级别
@@ -15,5 +15,8 @@ namespace EasyPlot.Model
         internal double Width { get; set; }
         internal double Height { get; set; }
         internal int Depth { get; set; }
+        public string ParentUid { get; set; }
+        public string Uid { get; set; }
+        public bool IsRoot { get; set; }
     }
 }

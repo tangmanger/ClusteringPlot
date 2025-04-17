@@ -41,11 +41,13 @@ namespace ClusteringPlot
             int level = 1;
             int colum = 0;
             List<string> cols = new List<string>();
+            string key = Guid.NewGuid().ToString();
             List<ClusteringModel> clusteringModels = new List<ClusteringModel>();
             for (int i = 0; i < 5; i++)
             {
                 ClusteringModel clusteringModel = new ClusteringModel();
                 clusteringModel.Level = 1;
+                string uid2 = Guid.NewGuid().ToString();
                 if (i < 2)
                 {
                     for (int j = 0; j < 3; j++)
@@ -56,6 +58,7 @@ namespace ClusteringPlot
                         childClusteringModel.Level = 2;
                         childClusteringModel.Name = "第二级" + j;
                         childClusteringModel.Col = colum;
+                        string uid1 = Guid.NewGuid().ToString();
                         childClusteringModel.Clustering = new List<ClusteringModel>();
                         if (j < 1)
                         {
@@ -65,6 +68,7 @@ namespace ClusteringPlot
                                 childKClusteringModel.Level = 3;
                                 childKClusteringModel.Name = "第三极" + k;
                                 childKClusteringModel.Col = colum;
+                                string uid = Guid.NewGuid().ToString();
                                 childKClusteringModel.Clustering = new List<ClusteringModel>();
                                 if (k < 2)
                                 {
@@ -73,16 +77,27 @@ namespace ClusteringPlot
                                     childKClusteringModel1.Level = 4;
                                     childKClusteringModel1.Name = "第四极" + k;
                                     childKClusteringModel1.Col = colum;
+                                    childKClusteringModel1.Clustering = new List<ClusteringModel>();
                                     childKClusteringModel.Clustering.Add(childKClusteringModel1);
-                                    testClusters.Add(new TestCluster() { Name = childKClusteringModel1.Name, Level = childKClusteringModel1.Level });
+                                    string fd = Guid.NewGuid().ToString();
+                                    for (int m = 0; m < 3; m++)
+                                    {
+                                        ClusteringModel childKClusteringModel1s = new ClusteringModel();
+                                        childKClusteringModel1s.Level = 5;
+                                        childKClusteringModel1s.Name = "第五极" + k;
+                                        childKClusteringModel1s.Col = colum;
+                                        childKClusteringModel1s.Clustering.Add(childKClusteringModel1);
+                                        testClusters.Add(new TestCluster() { Name = childKClusteringModel1s.Name, ParentUid = fd, Level = childKClusteringModel1s.Level });
+                                    }
+                                    testClusters.Add(new TestCluster() { Name = childKClusteringModel1.Name, ParentUid = uid, Uid = fd, Level = childKClusteringModel1.Level });
 
                                 }
-                                testClusters.Add(new TestCluster() { Name = childKClusteringModel.Name, Level = childKClusteringModel.Level });
+                                testClusters.Add(new TestCluster() { Name = childKClusteringModel.Name, Uid = uid, ParentUid = uid1, Level = childKClusteringModel.Level });
                                 childClusteringModel.Clustering.Add(childKClusteringModel);
 
                             }
                         }
-                        testClusters.Add(new TestCluster() { Name = childClusteringModel.Name, Level = childClusteringModel.Level });
+                        testClusters.Add(new TestCluster() { Name = childClusteringModel.Name, Uid = uid1, ParentUid = uid2, Level = childClusteringModel.Level });
                         clusteringModel.Clustering.Add(childClusteringModel);
                     }
                 }
@@ -90,10 +105,10 @@ namespace ClusteringPlot
                 {
                     clusteringModel.Name = "第一级AAAA" + i;
                     clusteringModel.Col = colum;
-                    testClusters.Add(new TestCluster() { Name = clusteringModel.Name, Level = clusteringModel.Level });
 
 
                 }
+                testClusters.Add(new TestCluster() { Name = clusteringModel.Name, Uid = uid2, ParentUid = key, IsRoot = true, Level = clusteringModel.Level });
                 clusteringModels.Add(clusteringModel);
 
 
@@ -111,7 +126,7 @@ namespace ClusteringPlot
                 a.Add(i.ToString());
             }
 
-            root.ItemsSource = testClusters.OrderBy(x=>x.Level).ToList();
+            root.ItemsSource = testClusters;//.OrderBy(x=>x.Level).ToList();
         }
     }
 }
