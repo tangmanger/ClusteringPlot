@@ -1,4 +1,5 @@
-﻿using EasyPlot.Series;
+﻿using EasyPlot.Model;
+using EasyPlot.Series;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,12 @@ using System.Windows.Shapes;
 
 namespace ClusteringPlot
 {
+    public class TestCluster : BaseClusterModel
+    {
+        public string Name { get; set; }
+
+
+    }
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
@@ -27,13 +34,15 @@ namespace ClusteringPlot
             this.Loaded += MainWindow_Loaded;
         }
 
+
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            List<TestCluster> testClusters = new List<TestCluster>();
             int level = 1;
             int colum = 0;
             List<string> cols = new List<string>();
             List<ClusteringModel> clusteringModels = new List<ClusteringModel>();
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 5; i++)
             {
                 ClusteringModel clusteringModel = new ClusteringModel();
                 clusteringModel.Level = 1;
@@ -59,20 +68,21 @@ namespace ClusteringPlot
                                 childKClusteringModel.Clustering = new List<ClusteringModel>();
                                 if (k < 2)
                                 {
-                                    for (int m = 0; m < 2; m++)
-                                    {
-                                        ClusteringModel childKClusteringModel1 = new ClusteringModel();
-                                        childKClusteringModel1.Level = 4;
-                                        childKClusteringModel1.Name = "第四极" + k;
-                                        childKClusteringModel1.Col = colum;
-                                        childKClusteringModel.Clustering.Add(childKClusteringModel1);
-                                    }
+
+                                    ClusteringModel childKClusteringModel1 = new ClusteringModel();
+                                    childKClusteringModel1.Level = 4;
+                                    childKClusteringModel1.Name = "第四极" + k;
+                                    childKClusteringModel1.Col = colum;
+                                    childKClusteringModel.Clustering.Add(childKClusteringModel1);
+                                    testClusters.Add(new TestCluster() { Name = childKClusteringModel1.Name, Level = childKClusteringModel1.Level });
+
                                 }
+                                testClusters.Add(new TestCluster() { Name = childKClusteringModel.Name, Level = childKClusteringModel.Level });
                                 childClusteringModel.Clustering.Add(childKClusteringModel);
 
                             }
                         }
-
+                        testClusters.Add(new TestCluster() { Name = childClusteringModel.Name, Level = childClusteringModel.Level });
                         clusteringModel.Clustering.Add(childClusteringModel);
                     }
                 }
@@ -80,7 +90,7 @@ namespace ClusteringPlot
                 {
                     clusteringModel.Name = "第一级AAAA" + i;
                     clusteringModel.Col = colum;
-
+                    testClusters.Add(new TestCluster() { Name = clusteringModel.Name, Level = clusteringModel.Level });
 
 
                 }
@@ -90,9 +100,18 @@ namespace ClusteringPlot
             }
             ClusteringModel clusteringModel1 = new ClusteringModel();
             clusteringModel1.Clustering = clusteringModels;
-            aa.MaxTreeLevel = 2;
-            aa.Columns = cols;
-            aa.Clustering = clusteringModel1;
+            //aa.MaxTreeLevel = 2;
+            //aa.Columns = cols;
+            //aa.Clustering = clusteringModel1;
+            //aa.ItemsSource = new List<ClusteringModel>() { clusteringModel1 };
+
+            List<string> a = new List<string>();
+            for (int i = 0; i < 10; i++)
+            {
+                a.Add(i.ToString());
+            }
+
+            root.ItemsSource = testClusters.OrderBy(x=>x.Level).ToList();
         }
     }
 }

@@ -55,6 +55,27 @@ namespace EasyPlot.Series
         public int TreeDepth { get; private set; }
         public int NodeCount { get; private set; }
         public double LineMaxWidth { get; private set; }
+
+
+
+
+
+
+        public bool IsVer
+        {
+            get { return (bool)GetValue(IsVerProperty); }
+            set { SetValue(IsVerProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsVer.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsVerProperty =
+            DependencyProperty.Register("IsVer", typeof(bool), typeof(TreePlot), new PropertyMetadata(false));
+
+
+
+
+
+
         public ClusteringModel Clustering
         {
             get { return (ClusteringModel)GetValue(ClusteringProperty); }
@@ -79,26 +100,34 @@ namespace EasyPlot.Series
                     //计算子节点数
                     clusteringMap?.ExecuteLastNode(clusteringModel);
                     //计算最大文本宽度
-                    clusteringMap?.GetMaxTextWidth(clusteringModel);
+                    clusteringMap?.GetMaxTextWidth(clusteringModel, clusteringMap.IsVer);
 
                 }
                 clusteringMap?.InvalidateVisual();
             }
         }
-        void GetMaxTextWidth(ClusteringModel root)
+        void GetMaxTextWidth(ClusteringModel root, bool isVer = false)
         {
             if (root == null) return;
             if (!string.IsNullOrWhiteSpace(root.Name))
             {
                 FormattedText formattedText = DrawText(root.Name);
                 double actualWidth = formattedText.WidthIncludingTrailingWhitespace;
-                MaxTextWidth = Math.Max(MaxTextWidth, actualWidth);
+                double actualHeight = formattedText.Height;
+                if (isVer)
+                {
+                    MaxTextWidth = Math.Max(MaxTextWidth, actualHeight);
+                }
+                else
+                {
+                    MaxTextWidth = Math.Max(MaxTextWidth, actualWidth);
+                }
             }
             if (root.Clustering != null && root.Clustering.Count > 0)
             {
                 foreach (var child in root.Clustering)
                 {
-                    GetMaxTextWidth(child);
+                    GetMaxTextWidth(child, isVer);
                 }
             }
         }
@@ -141,14 +170,29 @@ namespace EasyPlot.Series
         {
 
             drawingContext.DrawRectangle(Background, null, new Rect(0, 0, this.ActualWidth, this.ActualHeight));
-            //先计算还有多少可以使用
-            LineMaxWidth = this.ActualWidth - this.MaxTextWidth;
-            //计算每个格的宽度
-            PreLevelStep = LineMaxWidth / (TreeDepth);
-            PreLevelHeight = this.ActualHeight / NodeCount;
-            i = 0;
-            depth = 0;
-            DrawClustering(Clustering, drawingContext, ActualWidth, this.ActualHeight, true);
+
+            if (IsVer)
+            {
+
+                LineMaxWidth = this.ActualHeight - this.MaxTextWidth;
+                //计算每个格的宽度
+                PreLevelStep = LineMaxWidth / (TreeDepth - 1);
+                PreLevelHeight = this.ActualWidth / NodeCount;
+                i = 0;
+                depth = 0;
+                DrawClustering2(Clustering, drawingContext, ActualWidth, this.ActualHeight, true);
+            }
+            else
+            {
+                //先计算还有多少可以使用
+                LineMaxWidth = this.ActualWidth - this.MaxTextWidth;
+                //计算每个格的宽度
+                PreLevelStep = LineMaxWidth / (TreeDepth - 1);
+                PreLevelHeight = this.ActualHeight / NodeCount;
+                i = 0;
+                depth = 0;
+                DrawClustering(Clustering, drawingContext, ActualWidth, this.ActualHeight, true);
+            }
             base.OnRender(drawingContext);
         }
         FormattedText DrawText(string str)
@@ -160,7 +204,75 @@ namespace EasyPlot.Series
            new Typeface(FontFamily, FontStyle, FontWeight, FontStretch), 14, new SolidColorBrush((Color)Colors.Black), 1);
             return formattedText;
         }
+        private Point DrawClustering2(ClusteringModel clustering, DrawingContext drawingContext, double width, double height, bool isRoot = false)
+        {
+            Point startPoint = new Point(0, 0);
 
+            if (clustering != null)
+            {
+                if (clustering.Clustering != null && clustering.Clustering.Count > 0)
+                {
+                    double minX = double.MaxValue;
+                    double maxX = double.MinValue;
+                    double y = 0;
+                    for (int i = 0; i < clustering.Clustering.Count; i++)
+                    {
+                        var childClustering = clustering.Clustering[i];
+                        if (childClustering.Clustering != null)
+                        {
+                            var newPoint = DrawClustering2(childClustering, drawingContext, width, height);
+                            y = newPoint.Y;
+                            if (newPoint.X < minX)
+                            {
+                                minX = newPoint.X;
+                            }
+                            if (newPoint.X > maxX)
+                            {
+                                maxX = newPoint.X;
+                            }
+
+
+                        }
+                    }
+                    startPoint = new Point(minX, y);
+                    var endPoint = new Point(maxX, y);
+                    var mindX = minX + (maxX - minX) / 2;
+                    //画闭合线
+                    drawingContext.DrawLine(new Pen(Brushes.Black, 1), startPoint, endPoint);
+                    if (!isRoot)
+                    {
+                        startPoint = new Point(mindX, LineMaxWidth - PreLevelStep * (TreeDepth - clustering.Level));
+                        endPoint = new Point(startPoint.X, startPoint.Y + PreLevelStep);
+                        drawingContext.DrawLine(new Pen(Brushes.Black, 1), startPoint, endPoint);
+                    }
+                }
+                else
+                {
+                    startPoint = new Point(0 + PreLevelHeight * i, LineMaxWidth - PreLevelStep * (TreeDepth - clustering.Level));
+                    Point endPoint = new Point(startPoint.X, startPoint.Y + PreLevelStep);
+                    if (!string.IsNullOrWhiteSpace(clustering.Name))
+                    {
+                        FormattedText formattedText = DrawText(clustering.Name);
+                        double actualWidth = formattedText.WidthIncludingTrailingWhitespace;
+                        double actualHeight = formattedText.Height;
+                        Point point = new Point(0 + actualWidth / 2 + PreLevelHeight * i, height - actualHeight);
+                        drawingContext.DrawText(formattedText, point);
+                        startPoint.X = point.X + actualWidth / 2;
+                        endPoint.Y = endPoint.Y + MaxTextWidth - actualHeight;
+                        endPoint.X = startPoint.X;
+                        if ((clustering.Clustering == null || clustering.Clustering.Count == 0) && clustering.Level < TreeDepth - 1)
+                        {
+                            var midWidth = LineMaxWidth - endPoint.Y;
+                            endPoint.Y = endPoint.Y + midWidth + MaxTextWidth - actualHeight;
+                        }
+
+                    }
+                    i++;
+                    drawingContext.DrawLine(new Pen(Brushes.Black, 1), startPoint, endPoint);
+                }
+            }
+            return startPoint;
+        }
         private Point DrawClustering(ClusteringModel clustering, DrawingContext drawingContext, double width, double height, bool isRoot = false)
         {
             Point startPoint = new Point(0, 0);
@@ -220,7 +332,7 @@ namespace EasyPlot.Series
                         if ((clustering.Clustering == null || clustering.Clustering.Count == 0) && clustering.Level < TreeDepth - 1)
                         {
                             var midWidth = LineMaxWidth - endPoint.X;
-                            endPoint.X = endPoint.X + midWidth + MaxTextWidth - actualWidth; 
+                            endPoint.X = endPoint.X + midWidth + MaxTextWidth - actualWidth;
                         }
 
                     }

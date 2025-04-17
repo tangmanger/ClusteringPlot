@@ -7,7 +7,26 @@
         xmlns:series="clr-namespace:EasyPlot.Series;assembly=EasyPlot"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+
+    </Window.Resources>
     <Grid>
-        <series:TreePlot Margin="50" Background="Wheat" x:Name="aa"></series:TreePlot>
+        <ItemsControl x:Name="root" Margin="10">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <series:ClusterPanel MaxLevel="4" Orientation="Vertical"></series:ClusterPanel>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="Green" Width="10" Height="20" Margin="5">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock  Text="{Binding Name}"></TextBlock>
+                            <TextBlock  Text="{Binding Level}"></TextBlock>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </Window>
