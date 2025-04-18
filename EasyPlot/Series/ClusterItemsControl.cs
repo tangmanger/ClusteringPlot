@@ -212,6 +212,10 @@ namespace EasyPlot.Series
                 foreach (var item in uidDic)
                 {
                     var parentLine = drawLines.Find(p => p.Uid == item.Key);
+                    if (parentLine == null)
+                    {
+                        parentLine = drawLines.Find(p => p.Level == level - 1);
+                    }
                     if (item.Value.Count == 1)
                     {
                         if (parentLine != null)
@@ -244,12 +248,17 @@ namespace EasyPlot.Series
         private void DrawHorLevel(DrawingContext drawingContext, List<DrawLineModel> drawLines, int level)
         {
             var allLevelData = drawLines.FindAll(x => x.Level == level);
+
             if (allLevelData != null && allLevelData.Count > 0)
             {
                 var uidDic = allLevelData.GroupBy(x => x.ParentUid).ToDictionary(c => c.Key, m => m.ToList());
                 foreach (var item in uidDic)
                 {
                     var parentLine = drawLines.Find(p => p.Uid == item.Key);
+                    if (parentLine == null)
+                    {
+                        parentLine = drawLines.Find(p => p.Level == level - 1);
+                    }
                     if (item.Value.Count == 1)
                     {
                         if (parentLine != null)
@@ -299,7 +308,7 @@ namespace EasyPlot.Series
 
         }
 
-      
+
 
         private Point GetPoint(DrawLineModel drawData)
         {
