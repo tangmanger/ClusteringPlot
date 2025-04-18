@@ -5,28 +5,88 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ClusteringPlot"
         xmlns:series="clr-namespace:EasyPlot.Series;assembly=EasyPlot"
+        xmlns:behavior="clr-namespace:EasyPlot.Behaviors;assembly=EasyPlot"
+         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
 
     </Window.Resources>
-    <Grid>
-        <ItemsControl x:Name="root" Margin="10">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <series:ClusterPanel  MaxLevel="5" Orientation="Vertical"></series:ClusterPanel>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border Background="Green" Width="50" Height="20" Margin="5">
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock  Text="{Binding Name}"></TextBlock>
-                            <TextBlock  Text="{Binding Level}"></TextBlock>
-                        </StackPanel>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+    <Grid Margin="5">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.2*"></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.2*"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <ItemsControl x:Name="root1" Grid.Column="1">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <series:ClusterPanel  MaxLevel="3" Orientation="Horizontal"></series:ClusterPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="Green" MinWidth="50" MinHeight="20" Margin="5">
+                            <i:Interaction.Behaviors>
+                                <behavior:NoticeSizeChangedBehavior OvservedWidth="{Binding ShowWidth, Mode=TwoWay}" />
+                            </i:Interaction.Behaviors>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock  Foreground="White" Text="{Binding Name}"></TextBlock>
+                                <TextBlock  Foreground="White" Text="{Binding Level}"></TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl x:Name="root" Grid.Row="1">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <series:ClusterPanel  MaxLevel="3" Orientation="Vertical"></series:ClusterPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="Green" MinWidth="50" MinHeight="20" Margin="5">
+                            <i:Interaction.Behaviors>
+                                <behavior:NoticeSizeChangedBehavior OvseredHeight="{Binding ShowHeight, Mode=TwoWay}" />
+                            </i:Interaction.Behaviors>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Foreground="White" Text="{Binding Name}"></TextBlock>
+                                <TextBlock Foreground="White"  Text="{Binding Level}"></TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl Grid.Column="1" Grid.Row="1" x:Name="main">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"></StackPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ItemsControl ItemsSource="{Binding Children}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical"></StackPanel>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="Yellow" MinWidth="50" MinHeight="20" Margin="5" Width="{Binding DataContext.ShowWidth,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl},Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" Height="20">
+                                        <TextBlock Text="{Binding Name}"></TextBlock>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
     </Grid>
 </Window>

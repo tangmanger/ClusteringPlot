@@ -2,7 +2,9 @@
 using EasyPlot.Series;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,11 +19,37 @@ using System.Windows.Shapes;
 
 namespace ClusteringPlot
 {
-    public class TestCluster : BaseClusterModel
+    public class TestCluster : BaseClusterModel, INotifyPropertyChanged
     {
+        private double showHeight;
+        private double showWidth;
+
+        public double ShowWidth
+        {
+            get => showWidth;
+            set
+            {
+                showWidth = value;
+                RaiseOnPropertyChanged();
+            }
+        }
+        public double ShowHeight
+        {
+            get => showHeight;
+            set
+            {
+                showHeight = value;
+                RaiseOnPropertyChanged();
+            }
+        }
         public string Name { get; set; }
+        public List<TestCluster> Children { get; set; } = new List<TestCluster>();
 
-
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void RaiseOnPropertyChanged([CallerMemberName] string name = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
@@ -70,28 +98,28 @@ namespace ClusteringPlot
                                 childKClusteringModel.Col = colum;
                                 string uid = Guid.NewGuid().ToString();
                                 childKClusteringModel.Clustering = new List<ClusteringModel>();
-                                if (k < 2)
-                                {
+                                //if (k < 2)
+                                //{
 
-                                    ClusteringModel childKClusteringModel1 = new ClusteringModel();
-                                    childKClusteringModel1.Level = 4;
-                                    childKClusteringModel1.Name = "第四极" + k;
-                                    childKClusteringModel1.Col = colum;
-                                    childKClusteringModel1.Clustering = new List<ClusteringModel>();
-                                    childKClusteringModel.Clustering.Add(childKClusteringModel1);
-                                    string fd = Guid.NewGuid().ToString();
-                                    for (int m = 0; m < 3; m++)
-                                    {
-                                        ClusteringModel childKClusteringModel1s = new ClusteringModel();
-                                        childKClusteringModel1s.Level = 5;
-                                        childKClusteringModel1s.Name = "第五极" + k;
-                                        childKClusteringModel1s.Col = colum;
-                                        childKClusteringModel1s.Clustering.Add(childKClusteringModel1);
-                                        testClusters.Add(new TestCluster() { Name = childKClusteringModel1s.Name, ParentUid = fd, Level = childKClusteringModel1s.Level });
-                                    }
-                                    testClusters.Add(new TestCluster() { Name = childKClusteringModel1.Name, ParentUid = uid, Uid = fd, Level = childKClusteringModel1.Level });
+                                //    ClusteringModel childKClusteringModel1 = new ClusteringModel();
+                                //    childKClusteringModel1.Level = 4;
+                                //    childKClusteringModel1.Name = "第四极" + k;
+                                //    childKClusteringModel1.Col = colum;
+                                //    childKClusteringModel1.Clustering = new List<ClusteringModel>();
+                                //    childKClusteringModel.Clustering.Add(childKClusteringModel1);
+                                //    string fd = Guid.NewGuid().ToString();
+                                //    for (int m = 0; m < 3; m++)
+                                //    {
+                                //        ClusteringModel childKClusteringModel1s = new ClusteringModel();
+                                //        childKClusteringModel1s.Level = 5;
+                                //        childKClusteringModel1s.Name = "第五极" + k;
+                                //        childKClusteringModel1s.Col = colum;
+                                //        childKClusteringModel1s.Clustering.Add(childKClusteringModel1);
+                                //        testClusters.Add(new TestCluster() { Name = childKClusteringModel1s.Name, ParentUid = fd, Level = childKClusteringModel1s.Level });
+                                //    }
+                                //    testClusters.Add(new TestCluster() { Name = childKClusteringModel1.Name, ParentUid = uid, Uid = fd, Level = childKClusteringModel1.Level });
 
-                                }
+                                //}
                                 testClusters.Add(new TestCluster() { Name = childKClusteringModel.Name, Uid = uid, ParentUid = uid1, Level = childKClusteringModel.Level });
                                 childClusteringModel.Clustering.Add(childKClusteringModel);
 
@@ -127,6 +155,29 @@ namespace ClusteringPlot
             }
 
             root.ItemsSource = testClusters;//.OrderBy(x=>x.Level).ToList();
+            List<TestCluster> drawLineModels = new List<TestCluster>();
+            foreach (var item in testClusters)
+            {
+                TestCluster testCluster = new TestCluster();
+                testCluster.ShowWidth = item.ShowWidth;
+                testCluster.ShowHeight = item.ShowHeight;
+                testCluster.Name = item.Name;
+                testCluster.Uid = item.Uid;
+                testCluster.ParentUid = item.ParentUid;
+                testCluster.Level = item.Level;
+                foreach (var child in testClusters)
+                {
+                    TestCluster testCluster1 = new TestCluster();
+                    testCluster1.ShowWidth = item.ShowWidth;
+                    testCluster1.ShowHeight = item.ShowHeight;
+                    testCluster1.Name = $"{item.Name}-{child.Name}";
+                    testCluster.Children.Add(testCluster1);
+                }
+                drawLineModels.Add(testCluster);
+            }
+            root1.ItemsSource = drawLineModels;
+
+            main.ItemsSource = drawLineModels;
         }
     }
 }
