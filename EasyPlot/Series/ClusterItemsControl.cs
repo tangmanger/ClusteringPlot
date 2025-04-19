@@ -127,7 +127,15 @@ namespace EasyPlot.Series
 
             base.OnRender(drawingContext);
         }
-
+        /// <summary>
+        /// 生成竖向排列Lines
+        /// </summary>
+        /// <param name="drawLines">最终Line合集</param>
+        /// <param name="yIndex">来控制线的位置</param>
+        /// <param name="y">线的位置</param>
+        /// <param name="currentLevel">当前等级</param>
+        /// <param name="verStartPoint">起始</param>
+        /// <param name="verEndPoint">终止</param>
         private void DrawVer(List<DrawLineModel> drawLines, ref int yIndex, ref double y, ref int currentLevel, ref Point verStartPoint, ref Point verEndPoint)
         {
             foreach (BaseClusterModel baseClusterModel in BaseClusters)
@@ -145,38 +153,26 @@ namespace EasyPlot.Series
 
                 var startPoint = new Point(PreLineLength * (baseClusterModel.Level - 1), y);
                 var endPoint = new Point(LineMaxSpace, y);
-                drawLines.Add(new DrawLineModel() { Level = baseClusterModel.Level, Uid = baseClusterModel.Uid, ParentUid = baseClusterModel.ParentUid, StartPoint = startPoint, EndPoint = endPoint, Orientation = Orientation.Horizontal });
+                drawLines.Add(new DrawLineModel() { Level = baseClusterModel.Level, Uid = baseClusterModel.Uid, ParentUid = baseClusterModel.ParentUid, StartPoint = startPoint, EndPoint = endPoint });
                 if (currentLevel != baseClusterModel.Level)
                 {
-                    //if (verStartPoint.Y != verEndPoint.Y)
-                    //{
-                    //    drawLines.Add(new DrawLineModel() { Level = baseClusterModel.Level - 1, StartPoint = verStartPoint, EndPoint = verEndPoint, Orientation = Orientation.Vertical });
-                    //}
                     verStartPoint = new Point(startPoint.X, y);
                 }
 
                 verEndPoint = new Point(startPoint.X, y);
                 currentLevel = baseClusterModel.Level;
-                //if (yIndex == BaseClusters.Count)
-                //{
-
-                //    if (verStartPoint.Y != verEndPoint.Y)
-                //    {
-                //        drawLines.Add(new DrawLineModel() { Level = baseClusterModel.Level, StartPoint = verStartPoint, EndPoint = verEndPoint, Orientation = Orientation.Vertical });
-                //    }
-                //}
             }
         }
 
         /// <summary>
-        /// 
+        /// 生成横向排列Lines
         /// </summary>
-        /// <param name="drawLines"></param>
-        /// <param name="yIndex"></param>
-        /// <param name="x"></param>
-        /// <param name="currentLevel"></param>
-        /// <param name="verStartPoint"></param>
-        /// <param name="verEndPoint"></param>
+        /// <param name="drawLines">最终Line合集</param>
+        /// <param name="yIndex">来控制线的位置</param>
+        /// <param name="x">线的位置</param>
+        /// <param name="currentLevel">当前等级</param>
+        /// <param name="verStartPoint">起始</param>
+        /// <param name="verEndPoint">终止</param>
         private void DrawHor(List<DrawLineModel> drawLines, ref int yIndex, ref double x, ref int currentLevel, ref Point verStartPoint, ref Point verEndPoint)
         {
             foreach (BaseClusterModel baseClusterModel in BaseClusters)
@@ -194,7 +190,7 @@ namespace EasyPlot.Series
 
                 var startPoint = new Point(x, PreLineLength * (baseClusterModel.Level - 1));
                 var endPoint = new Point(x, LineMaxSpace);
-                drawLines.Add(new DrawLineModel() { Level = baseClusterModel.Level, StartPoint = startPoint, Uid = baseClusterModel.Uid, ParentUid = baseClusterModel.ParentUid, EndPoint = endPoint, Orientation = Orientation.Horizontal });
+                drawLines.Add(new DrawLineModel() { Level = baseClusterModel.Level, StartPoint = startPoint, Uid = baseClusterModel.Uid, ParentUid = baseClusterModel.ParentUid, EndPoint = endPoint });
 
                 verEndPoint = new Point(x, startPoint.Y);
                 currentLevel = baseClusterModel.Level;
@@ -202,7 +198,12 @@ namespace EasyPlot.Series
             }
         }
 
-
+        /// <summary>
+        /// 根据等级绘制线段
+        /// </summary>
+        /// <param name="drawingContext">绘制上下文</param>
+        /// <param name="drawLines">要绘制的线段</param>
+        /// <param name="level">等级</param>
         void DrawByLevel(DrawingContext drawingContext, List<DrawLineModel> drawLines, int level)
         {
             var allLevelData = drawLines.FindAll(x => x.Level == level);
@@ -245,6 +246,12 @@ namespace EasyPlot.Series
                 DrawByLevel(drawingContext, drawLines, level);
             }
         }
+        /// <summary>
+        /// 横向排版绘制
+        /// </summary>
+        /// <param name="drawingContext">绘制上下文</param>
+        /// <param name="drawLines">要绘制的线段</param>
+        /// <param name="level">等级</param>
         private void DrawHorLevel(DrawingContext drawingContext, List<DrawLineModel> drawLines, int level)
         {
             var allLevelData = drawLines.FindAll(x => x.Level == level);

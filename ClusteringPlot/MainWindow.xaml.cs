@@ -136,7 +136,7 @@ namespace ClusteringPlot
 
 
                 }
-                testClusters.Add(new TestCluster() { Name = clusteringModel.Name, Uid = uid2, ParentUid = key, IsRoot = true, Level = clusteringModel.Level });
+                testClusters.Add(new TestCluster() { Name = clusteringModel.Name, Uid = uid2, ParentUid = key,  Level = clusteringModel.Level });
                 clusteringModels.Add(clusteringModel);
 
 
@@ -153,7 +153,7 @@ namespace ClusteringPlot
             {
                 a.Add(i.ToString());
             }
-
+            testClusters= testClusters.FindAll(x => !string.IsNullOrWhiteSpace(x.Name));
             root.ItemsSource = testClusters;//.OrderBy(x=>x.Level).ToList();
             List<TestCluster> drawLineModels = new List<TestCluster>();
             foreach (var item in testClusters)
@@ -177,7 +177,7 @@ namespace ClusteringPlot
             }
             root1.ItemsSource = drawLineModels;
 
-            main.ItemsSource = drawLineModels;
+          //  main.ItemsSource = drawLineModels;
         }
     }
 }
