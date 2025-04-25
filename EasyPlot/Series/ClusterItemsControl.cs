@@ -245,6 +245,38 @@ namespace EasyPlot.Series
                 level = level - 1;
                 DrawByLevel(drawingContext, drawLines, level);
             }
+            else
+            {
+                if (level > 1)
+                {
+                    var allLines = drawLines.FindAll(x => x.Level == level + 1);
+                    if (allLines.Count > 0)
+                    {
+                        List<DrawLineModel> drawLineModels = new List<DrawLineModel>();
+                        var parentDic = allLines.GroupBy(x => x.ParentUid).ToDictionary(g => g.Key, m => m.ToList());
+                        if (parentDic != null)
+                        {
+                            foreach (var item in parentDic)
+                            {
+                                var minData = item.Value.Min(x => x.StartPoint.Y);
+                                var maxData = item.Value.Max(x => x.StartPoint.Y);
+                                var maxX = item.Value.Max(x => x.StartPoint.X);
+                                var minX = maxX - PreLineLength;
+                                var startY = minData + (maxData - minData) / 2;
+                                drawLineModels.Add(new DrawLineModel() { EndPoint = new Point(maxX, startY), StartPoint = new Point(minX, startY) });
+                                drawingContext.DrawLine(new Pen(Brushes.Black, 1), new Point(maxX, startY), new Point(minX, startY));
+                            }
+                        }
+                        if (drawLineModels.Count > 0)
+                        {
+                            var minData = drawLineModels.Min(x => x.StartPoint.Y);
+                            var maxData = drawLineModels.Max(x => x.StartPoint.Y);
+                            var maxX = drawLineModels.Max(x => x.StartPoint.X);
+                            drawingContext.DrawLine(new Pen(Brushes.Black, 1), new Point(maxX, minData), new Point(maxX, maxData));
+                        }
+                    }
+                }
+            }
         }
         /// <summary>
         /// 横向排版绘制
@@ -293,6 +325,38 @@ namespace EasyPlot.Series
                 }
                 level = level - 1;
                 DrawHorLevel(drawingContext, drawLines, level);
+            }
+            else
+            {
+                if (level > 1)
+                {
+                    var allLines = drawLines.FindAll(x => x.Level == level + 1);
+                    if (allLines.Count > 0)
+                    {
+                        List<DrawLineModel> drawLineModels = new List<DrawLineModel>();
+                        var parentDic = allLines.GroupBy(x => x.ParentUid).ToDictionary(g => g.Key, m => m.ToList());
+                        if (parentDic != null)
+                        {
+                            foreach (var item in parentDic)
+                            {
+                                var minData = item.Value.Min(x => x.StartPoint.X);
+                                var maxData = item.Value.Max(x => x.StartPoint.X);
+                                var maxY = item.Value.Max(x => x.StartPoint.Y);
+                                var minY = maxY - PreLineLength;
+                                var startX = minData + (maxData - minData) / 2;
+                                drawLineModels.Add(new DrawLineModel() { EndPoint = new Point(startX, maxY), StartPoint = new Point(startX, minY) });
+                                drawingContext.DrawLine(new Pen(Brushes.Black, 1), new Point(startX, minY), new Point(startX, maxY));
+                            }
+                        }
+                        if (drawLineModels.Count > 0)
+                        {
+                            var minData = drawLineModels.Min(x => x.StartPoint.X);
+                            var maxData = drawLineModels.Max(x => x.StartPoint.X);
+                            var maxY = drawLineModels.Max(x => x.StartPoint.Y);
+                            drawingContext.DrawLine(new Pen(Brushes.Black, 1), new Point(minData, maxY), new Point(maxData, maxY));
+                        }
+                    }
+                }
             }
         }
         void DrawLine(DrawingContext drawingContext, List<DrawLineModel> drawLines, bool isFirst = false)
