@@ -6,11 +6,13 @@
         xmlns:local="clr-namespace:ClusteringPlot"
         xmlns:series="clr-namespace:EasyPlot.Series;assembly=EasyPlot"
         xmlns:behavior="clr-namespace:EasyPlot.Behaviors;assembly=EasyPlot"
-         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+         xmlns:i="http://schemas.microsoft.com/xaml/behaviors" xmlns:converters="clr-namespace:ClusteringPlot.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
-
+        <converters:ScrollValueConverter x:Key="ScrollValueConverter"></converters:ScrollValueConverter>
+        <converters:ScrollBarMaximumConverter x:Key="ScrollBarMaximumConverter"></converters:ScrollBarMaximumConverter>
+        <converters:ScrollBarVisibilityConverter x:Key="ScrollBarVisibilityConverter"></converters:ScrollBarVisibilityConverter>
     </Window.Resources>
     <Grid Margin="5">
         <Grid>
@@ -22,71 +24,178 @@
                 <ColumnDefinition Width="0.2*"></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <ItemsControl x:Name="root1" Grid.Column="1">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <series:ClusterPanel  MaxLevel="3" Orientation="Horizontal"></series:ClusterPanel>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="Green" MinWidth="50" MinHeight="20" Margin="5">
-                            <i:Interaction.Behaviors>
-                                <behavior:NoticeSizeChangedBehavior OvservedWidth="{Binding ShowWidth, Mode=TwoWay}" />
-                            </i:Interaction.Behaviors>
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-                                <TextBlock  Foreground="White" Text="{Binding Name}"></TextBlock>
-                                <TextBlock  Foreground="White" Text="{Binding Level}"></TextBlock>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <ItemsControl x:Name="root" Grid.Row="1">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <series:ClusterPanel  MaxLevel="3" Orientation="Vertical"></series:ClusterPanel>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="Green" MinWidth="50" MinHeight="20" Margin="5">
-                            <i:Interaction.Behaviors>
-                                <behavior:NoticeSizeChangedBehavior OvseredHeight="{Binding ShowHeight, Mode=TwoWay}" />
-                            </i:Interaction.Behaviors>
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-                                <TextBlock Foreground="White" Text="{Binding Name}"></TextBlock>
-                                <TextBlock Foreground="White"  Text="{Binding Level}"></TextBlock>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <ItemsControl Grid.Column="1" Grid.Row="1" x:Name="main">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"></StackPanel>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <ItemsControl ItemsSource="{Binding Children}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Vertical"></StackPanel>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="Yellow" MinWidth="50" MinHeight="20" Margin="5" Width="{Binding DataContext.ShowWidth,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl},Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" Height="20">
-                                        <TextBlock Text="{Binding Name}"></TextBlock>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <Border  Grid.Column="1" Margin="0,0,0,0"  x:Name="paramBorder"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ClipToBounds="True">
+                <Canvas  >
+                    <ItemsControl x:Name="root1" Height="{Binding Path=ActualHeight,ElementName=paramBorder}"  Grid.Column="1">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <series:ClusterPanel  MaxLevel="3" Orientation="Horizontal"></series:ClusterPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="Green" MinWidth="50" MinHeight="20" Margin="5">
+                                    <i:Interaction.Behaviors>
+                                        <behavior:NoticeSizeChangedBehavior OvservedWidth="{Binding ShowWidth, Mode=TwoWay}" />
+                                    </i:Interaction.Behaviors>
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock  Foreground="White" Text="{Binding Name}"></TextBlock>
+                                        <TextBlock  Foreground="White" Text="{Binding Level}"></TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                       
+                        <ItemsControl.RenderTransform>
+                            <TranslateTransform X="{Binding ElementName=HorizontalBar,Path=Value, Converter={StaticResource ScrollValueConverter}}" />
+                        </ItemsControl.RenderTransform>
+                    </ItemsControl>
+                </Canvas>
+            </Border>
+            <Border Grid.Column="0" Grid.Row="1"  Margin="0,0,0,0"  x:Name="verBorder"  VerticalAlignment="Stretch" ClipToBounds="True">
+                <Canvas >
+                    <ItemsControl x:Name="root" Grid.Row="1" Width="{Binding Path=ActualWidth,ElementName=verBorder}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <series:ClusterPanel  MaxLevel="3" Orientation="Vertical"></series:ClusterPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="Green" MinWidth="50" MinHeight="20" Margin="5">
+                                    <i:Interaction.Behaviors>
+                                        <behavior:NoticeSizeChangedBehavior OvseredHeight="{Binding ShowHeight, Mode=TwoWay}" />
+                                    </i:Interaction.Behaviors>
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock Foreground="White" Text="{Binding Name}"></TextBlock>
+                                        <TextBlock Foreground="White"  Text="{Binding Level}"></TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.RenderTransform>
+                            <TranslateTransform Y="{Binding ElementName=VerticalBar,Path=Value, Converter={StaticResource ScrollValueConverter}}" />
+                        </ItemsControl.RenderTransform>
+                    </ItemsControl>
+                </Canvas>
+            </Border>
+            <Border  x:Name="ContentBorder" Grid.Column="1" Grid.Row="1" Margin="0,0,0,0" BorderThickness="0,0,0,0" BorderBrush="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ClipToBounds="True">
+                <Canvas   >
+                    <ItemsControl Grid.Column="1" Grid.Row="1" x:Name="ContentItemsControl">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"></StackPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ItemsControl ItemsSource="{Binding Children}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Vertical"></StackPanel>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="Yellow" MinWidth="50" MinHeight="20" Margin="5" Width="{Binding DataContext.ShowWidth,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl},Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" Height="20">
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.RenderTransform>
+                            <TranslateTransform X="{Binding ElementName=HorizontalBar,Path=Value, Converter={StaticResource ScrollValueConverter}}"
+Y="{Binding ElementName=VerticalBar,Path=Value, Converter={StaticResource ScrollValueConverter}}" />
+                        </ItemsControl.RenderTransform>
+                    </ItemsControl>
+                </Canvas>
+            </Border>
+            <!--主内容横向滚动-->
+            <ScrollBar  x:Name="HorizontalBar" Opacity="0.5"  Grid.Row="1" Grid.Column="1" 
+     Background="Transparent"
+Orientation="Horizontal"
+HorizontalAlignment="Stretch"
+VerticalAlignment="Bottom"
+ViewportSize="{Binding ElementName=ContentBorder, Path=ActualWidth}"
+Minimum="0.0"
+Value="0"
+         Margin="0,0,0,0"
+Cursor="Arrow" 
+>
+                <ScrollBar.Maximum>
+                    <MultiBinding Mode="OneWay" Converter="{StaticResource ScrollBarMaximumConverter}">
+                        <MultiBinding.Bindings>
+                            <Binding ElementName="ContentBorder" Path="ActualWidth" />
+                            <Binding ElementName="ContentItemsControl" Path="ActualWidth" />
+                        </MultiBinding.Bindings>
+                    </MultiBinding>
+                </ScrollBar.Maximum>
+                <ScrollBar.Visibility>
+                    <MultiBinding Mode="OneWay" Converter="{StaticResource ScrollBarVisibilityConverter}">
+                        <MultiBinding.Bindings>
+                            <Binding ElementName="ContentBorder" Path="ActualWidth" />
+                            <Binding ElementName="ContentItemsControl" Path="ActualWidth" />
+                        </MultiBinding.Bindings>
+                    </MultiBinding>
+                </ScrollBar.Visibility>
+                <ScrollBar.Triggers>
+                    <EventTrigger RoutedEvent="MouseEnter"  
+                   SourceName="HorizontalBar">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation  
+                     Storyboard.TargetName="HorizontalBar"  
+                     Storyboard.TargetProperty="Opacity"  
+                     To="1"  
+                     Duration="0:0:1"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="MouseLeave"  
+                   SourceName="HorizontalBar">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation  
+                     Storyboard.TargetName="HorizontalBar"  
+                     Storyboard.TargetProperty="Opacity"  
+                     To="0.3"  
+                     Duration="0:0:1"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+
+                    </EventTrigger>
+                </ScrollBar.Triggers>
+            </ScrollBar>
+            <!--主内容纵向滚动-->
+            <ScrollBar  x:Name="VerticalBar" Grid.Row="1" Grid.Column="1" 
+Orientation="Vertical"
+HorizontalAlignment="Right"
+VerticalAlignment="Stretch"
+             Opacity="0.5"
+ViewportSize="{Binding ElementName=ContentBorder, Path=ActualHeight}"
+Minimum="0.0"
+Value="0"
+Cursor="Arrow"
+>
+                <ScrollBar.Maximum>
+                    <MultiBinding Mode="OneWay" Converter="{StaticResource ScrollBarMaximumConverter}">
+                        <MultiBinding.Bindings>
+                            <Binding ElementName="ContentBorder" Path="ActualHeight" />
+                            <Binding ElementName="ContentItemsControl" Path="ActualHeight" />
+                        </MultiBinding.Bindings>
+                    </MultiBinding>
+                </ScrollBar.Maximum>
+                <ScrollBar.Visibility>
+                    <MultiBinding Mode="OneWay" Converter="{StaticResource ScrollBarVisibilityConverter}">
+                        <MultiBinding.Bindings>
+                            <Binding ElementName="ContentBorder" Path="ActualHeight" />
+                            <Binding ElementName="ContentItemsControl" Path="ActualHeight" />
+                        </MultiBinding.Bindings>
+                    </MultiBinding>
+                </ScrollBar.Visibility>
+            </ScrollBar>
         </Grid>
     </Grid>
 </Window>

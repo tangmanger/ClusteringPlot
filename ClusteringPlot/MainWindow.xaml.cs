@@ -177,7 +177,7 @@ namespace ClusteringPlot
             }
             root1.ItemsSource = drawLineModels;
 
-          //  main.ItemsSource = drawLineModels;
+            ContentItemsControl.ItemsSource = drawLineModels;
         }
     }
 }

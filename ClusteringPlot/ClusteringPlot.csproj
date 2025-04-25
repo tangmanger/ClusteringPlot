@@ -67,6 +67,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters\ScrollBarMaximumConverter.cs" />
+    <Compile Include="Converters\ScrollBarVisibilityConverter.cs" />
+    <Compile Include="Converters\ScrollValueConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
